@@ -93,18 +93,43 @@ temp.file.info$instrument[temp.file.info$instrument == "UNKNOWN"] <- unlist(sapp
                                                                                        temp.name <- ifelse(sum(name.scan.match) > 0, name.scanner[name.scan.match][1],"UNKNOWN")
                                                                                        return(temp.name)
                                                                                    }))
+
+return(temp.file.info)
+                    
+                    # returns this as temp.active.archive  
+}
+
+temp.file.info <- parse.rawfile.information(raw.file.list, archive.file)
+
 ####################################################
 # Make a call for status: Operational or Downtime
 ####################################################
+temp.file.info <- temp.file.info %>% arrange(instrument,desc(ctime))
+all.instruments <- unique(temp.file.info$instrument)
 
-
-
+temp.file.status.info <- NULL
+for(i in seq_along(all.instruments)){
+        temp.instrument.status <- temp.file.info[temp.file.info$instrument == all.instruments[i],]
+        status = NULL
+        time.difference = NULL
+        for(j in seq_along(temp.instrument.status$ctime)){
+                # Collect the difference between runs in hours        
+                time.difference[j] <- as.numeric(as.character(temp.instrument.status$ctime[j] - temp.instrument.status$ctime[j+1]))         
+                # Call any time difference more than 5h as "DOWNTIME"
+                status[j] <- ifelse(time.difference[j] >5, "DOWNTIME","OPERATIONAL")
+        }
+        #Call the first acquistion for each instrument as: "OPERATIONAL"
+        time.difference[length(time.difference)] <- 0
+        status[length(status)] <- "OPERATIONAL"
+        temp.instrument.status$time.difference <- time.difference
+        temp.instrument.status$status <- status
+        
+}
                     
-                    # Hold and returns this as temp.active.archive  
-                    }
 
-                    # Save temp.active.archive as active.archive.rds into working directory
-                    # Push active.archive.rds into dropbox API
+
+# Save temp.active.archive as active.archive.rds into working directory
+# Push active.archive.rds into dropbox API
 
 
 
