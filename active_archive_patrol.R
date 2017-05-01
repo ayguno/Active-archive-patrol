@@ -56,10 +56,11 @@ if(!is.null(archive.file)){
 
 # Forms a neat data frame that already contains most of the information                        
 temp.file.info <- file.info(temp.scan.list)
-
 # Extract and attach the actual file.name from the path
-temp.file.info$file.name <- 
-                    # and time stamp information
+temp.file.info$path.name <- row.names(temp.file.info)
+temp.file.info$file.name <- basename(row.names(temp.file.info))
+# and time stamp information: use ctime as the reference for acquistion time
+temp.file.info$weekday <- weekdays(temp.file.info$ctime) 
                     # Extract Instrument,User,Weekday,LC label,Make a call for status: Operational or Downtime
                     # Hold and returns this as temp.active.archive  
                     }
