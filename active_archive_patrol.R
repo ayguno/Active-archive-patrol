@@ -5,6 +5,7 @@ require(dplyr)
 require(tidyr)
 require(lubridate)
 require(rdrop2)
+require(stringr)
 
 # Cat: date an time of the scan attempt for log
 print(Sys.time())
@@ -60,8 +61,11 @@ temp.file.info <- file.info(temp.scan.list)
 temp.file.info$path.name <- row.names(temp.file.info)
 temp.file.info$file.name <- basename(row.names(temp.file.info))
 # and time stamp information: use ctime as the reference for acquistion time
-temp.file.info$weekday <- weekdays(temp.file.info$ctime) 
-                    # Extract Instrument,User,Weekday,LC label,Make a call for status: Operational or Downtime
+temp.file.info$weekday <- weekdays(temp.file.info$ctime)
+# Extract Instrumentlabels
+
+#Make a call for status: Operational or Downtime
+                    
                     # Hold and returns this as temp.active.archive  
                     }
 
