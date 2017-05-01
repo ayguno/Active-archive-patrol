@@ -93,10 +93,12 @@ temp.file.info$instrument[temp.file.info$instrument == "UNKNOWN"] <- unlist(sapp
                                                                                        temp.name <- ifelse(sum(name.scan.match) > 0, name.scanner[name.scan.match][1],"UNKNOWN")
                                                                                        return(temp.name)
                                                                                    }))
+####################################################
+# Make a call for status: Operational or Downtime
+####################################################
 
 
 
-#Make a call for status: Operational or Downtime
                     
                     # Hold and returns this as temp.active.archive  
                     }
