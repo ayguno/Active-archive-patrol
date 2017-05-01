@@ -34,16 +34,17 @@ directories <- c("//flynn-cifs/proteomics_active_archive/Beaker_archive",
                  "//flynn-cifs/proteomics_active_archive/McClintock_archive",
                  "//flynn-cifs/proteomics_active_archive/Tesla_archive",
                  "//flynn-cifs/proteomics_active_archive/Yoda_archive")
-
+#####################################
 # Scan the active archive directory
+#####################################
+# Search for .raw files, determine the list of raw files
+# raw.file.list = list of new raw files
 
+raw.file.list <- unlist(sapply(directories,function(x){dir(path = x,pattern = ".raw$" ,
+                     recursive = T, full.names = T)}))
 
-                
-                # Search for .raw files, determine the list of raw files
-                # raw.file.list = list of new raw files
-                    
-                    # FUNCTION(raw.file.list, archive.file){
-                    # If !is.NULL(archive.file)        
+parse.rawfile.information <- function(raw.file.list, archive.file){
+# If !is.NULL(archive.file)        
                         # Compare the raw.file.list with archive.files
                         # Determine which are the new ones to be scanned
                         
@@ -55,7 +56,8 @@ directories <- c("//flynn-cifs/proteomics_active_archive/Beaker_archive",
                             # Exit the loop        
                     # Concatenate the file.name and time stamp information
                     # Extract Instrument,User,Weekday,LC label,Make a call for status: Operational or Downtime
-                    # Hold and returns this as temp.active.archive  }
+                    # Hold and returns this as temp.active.archive  
+                    }
 
                     # Save temp.active.archive as active.archive.rds into working directory
                     # Push active.archive.rds into dropbox API
