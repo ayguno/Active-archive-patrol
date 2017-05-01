@@ -62,7 +62,39 @@ temp.file.info$path.name <- row.names(temp.file.info)
 temp.file.info$file.name <- basename(row.names(temp.file.info))
 # and time stamp information: use ctime as the reference for acquistion time
 temp.file.info$weekday <- weekdays(temp.file.info$ctime)
+
+###########################
 # Extract Instrumentlabels
+###########################
+
+# First extract names that are distinguished by file name initials
+initial<-substr(temp.file.info$file.name,1,1)
+instrument_names <- c("Beaker","Curie","Franklin","Galileo",
+                      "McClintock","Tesla","Yoda")
+names(instrument_names) <- substr(instrument_names,1,1)
+
+temp.file.info$instrument <- unlist(sapply(initial,function(x){
+        match.vector<- names(instrument_names) %in% x
+        temp<- ifelse(sum(match.vector) == 1, instrument_names[match.vector],"UNKNOWN")
+}))
+
+# Next assign the Hubble2 names to the respective files
+H2<-which(grepl("^H2L|^H2M|^H2Z|^H2_|^H2S|^H2E",temp.file.info$file.name))
+temp.file.info$instrument[H2] <- "Hubble2"
+
+# Finally, for the remaining UNKNOWN instrument names extract the implied instrument
+# name from the path name. This time also include the Hubble
+name.scanner <- c(instrument_names,tolower(instrument_names),"Hubble","hubble")
+temp.file.info$instrument[temp.file.info$instrument == "UNKNOWN"] <- unlist(sapply(temp.file.info$path.name[temp.file.info$instrument == "UNKNOWN"],
+                                                                                   function(x){
+                                                                                       name.scan.match <- unlist(sapply(name.scanner,function(y){
+                                                                                               grepl(y,x)
+                                                                                       }))
+                                                                                       temp.name <- ifelse(sum(name.scan.match) > 0, name.scanner[name.scan.match][1],"UNKNOWN")
+                                                                                       return(temp.name)
+                                                                                   }))
+
+
 
 #Make a call for status: Operational or Downtime
                     
