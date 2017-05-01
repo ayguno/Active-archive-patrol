@@ -92,18 +92,29 @@ temp.file.info$instrument[temp.file.info$instrument == "UNKNOWN"] <- unlist(sapp
                                                                                        }))
                                                                                        temp.name <- ifelse(sum(name.scan.match) > 0, name.scanner[name.scan.match][1],"UNKNOWN")
                                                                                        return(temp.name)
-                                                                                   }))
 
-return(temp.file.info)
-                    
-                    # returns this as temp.active.archive  
+                                                                                }))
+
+# If !is.NULL(archive.file) 
+if(!is.null(archive.file)){
+# rBind the archive with temp.file.info (don't forget to first drop the time.dif and status columns from the archive)
+        
 }
 
+
+# returns this as temp.file.info
+return(temp.file.info)
+                    
+                     
+}
+
+# Call parse.rawfile.information to compile the latest data
 temp.file.info <- parse.rawfile.information(raw.file.list, archive.file)
 
 ####################################################
 # Make a call for status: Operational or Downtime
 ####################################################
+# Start with sorting the data
 temp.file.info <- temp.file.info %>% arrange(instrument,desc(ctime))
 all.instruments <- unique(temp.file.info$instrument)
 
@@ -113,10 +124,12 @@ for(i in seq_along(all.instruments)){
         status = NULL
         time.difference = NULL
         for(j in seq_along(temp.instrument.status$ctime)){
-                # Collect the difference between runs in hours        
-                time.difference[j] <- as.numeric(as.character(temp.instrument.status$ctime[j] - temp.instrument.status$ctime[j+1]))         
-                # Call any time difference more than 5h as "DOWNTIME"
-                status[j] <- ifelse(time.difference[j] >5, "DOWNTIME","OPERATIONAL")
+                ##################################################
+                # Collect the difference between runs in hours 
+                ##################################################
+                time.difference[j] <- julian(temp.instrument.status$ctime[j]) - julian(temp.instrument.status$ctime[j+1])        
+                # Call any time difference more than 5h (0.2083333 day) as "DOWNTIME"
+                status[j] <- ifelse(time.difference[j] > 0.2083333, "DOWNTIME","OPERATIONAL")
         }
         #Call the first acquistion for each instrument as: "OPERATIONAL"
         time.difference[length(time.difference)] <- 0
@@ -124,11 +137,13 @@ for(i in seq_along(all.instruments)){
         temp.instrument.status$time.difference <- time.difference
         temp.instrument.status$status <- status
         
+        # rbind the data from different instruments
+        temp.file.status.info <- rbind(temp.file.status.info,temp.instrument.status)
 }
                     
 
 
-# Save temp.active.archive as active.archive.rds into working directory
+# Save temp.file.status.info as active.archive.rds into working directory
 # Push active.archive.rds into dropbox API
 
 
