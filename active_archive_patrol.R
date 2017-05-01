@@ -44,16 +44,19 @@ raw.file.list <- unlist(sapply(directories,function(x){dir(path = x,pattern = ".
                      recursive = T, full.names = T)}))
 
 parse.rawfile.information <- function(raw.file.list, archive.file){
-# If !is.NULL(archive.file)        
-                        # Compare the raw.file.list with archive.files
-                        # Determine which are the new ones to be scanned
-                        
-                            # Loop over these files
-                                # Make sure they are real raw. files, not pseudo images
-                                        # Cat: if files will be ignored make a log of them
-                                # If they are real raw files; Extract file name and time stamp
-                                        # Cat : if the files will be scanned make a log of them
-                            # Exit the loop        
+# If !is.NULL(archive.file) 
+if(!is.null(archive.file)){
+        # Compare the raw.file.list with the directories in the archive.file
+        # Determine which are the new ones to be scanned (temp.scan.list = "these new files")
+        # Cat: Make a log of newly scanned files in the current scan
+        
+}else{
+        temp.scan.list <- raw.file.list      
+}        
+
+# Forms a neat data frame that already contains most of the information                        
+temp.file.info <- file.info(temp.scan.list)
+temp.file.info$file.name <- 
                     # Concatenate the file.name and time stamp information
                     # Extract Instrument,User,Weekday,LC label,Make a call for status: Operational or Downtime
                     # Hold and returns this as temp.active.archive  
