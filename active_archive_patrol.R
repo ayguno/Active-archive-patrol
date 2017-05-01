@@ -93,14 +93,15 @@ temp.file.info$instrument[temp.file.info$instrument == "UNKNOWN"] <- unlist(sapp
                                                                                        temp.name <- ifelse(sum(name.scan.match) > 0, name.scanner[name.scan.match][1],"UNKNOWN")
                                                                                        return(temp.name)
 
-                                                                                }))
 
+                                                                                                                                                                       }))
+##############################################################################################
 # If !is.NULL(archive.file) 
 if(!is.null(archive.file)){
-# rBind the archive with temp.file.info (don't forget to first drop the time.dif and status columns from the archive)
+# rBind the archive with temp.file.info (don't forget to first drop the time.difference_days and status columns from the archive)
         
 }
-
+###############################################################################################
 
 # returns this as temp.file.info
 return(temp.file.info)
@@ -127,7 +128,7 @@ for(i in seq_along(all.instruments)){
                 ##################################################
                 # Collect the difference between runs in hours 
                 ##################################################
-                time.difference[j] <- julian(temp.instrument.status$ctime[j]) - julian(temp.instrument.status$ctime[j+1])        
+                time.difference_days[j] <- julian(temp.instrument.status$ctime[j]) - julian(temp.instrument.status$ctime[j+1])        
                 # Call any time difference more than 5h (0.2083333 day) as "DOWNTIME"
                 status[j] <- ifelse(time.difference[j] > 0.2083333, "DOWNTIME","OPERATIONAL")
         }
