@@ -17,16 +17,18 @@ require(stringr)
 print(Sys.time())
 setwd("C:/Users/ozan/Desktop/Ozan_R_utilities/Development/JurkatQCscraper/active_archive_patrol/Active-archive-patrol")
 old_dir <- getwd()
-d<-paste("../Logs/Log_files_",Sys.Date(),sep = "") 
+d<-paste("../Logs/Log_files_",Sys.Date(),"/",sep = "") 
 if(!exists(d)){dir.create(d)}
 
 # Check if the active.archive.rds file exists
 if(file.exists("../active.archive.rds")){
         # If exists, archive.file = readRDS(active.archive.rds)
-        archive.file <- readRDS(active.archive.rds)
+        archive.file <- readRDS("../active.archive.rds")
+        cat("--Active archive database is found. Only new files will be scanned.\n")
 }else{
         # If does not exist, archive.file = NULL
         archive.file <- NULL
+        cat("--Active archive database is not found. All files will be scanned.\n")
 }
 
 
@@ -54,9 +56,11 @@ parse.rawfile.information <- function(raw.file.list, archive.file){
 # If !is.NULL(archive.file) 
 if(!is.null(archive.file)){
         # Compare the raw.file.list with the directories in the archive.file
+        scan.match <- raw.file.list %in% archive.file$path.name
         # Determine which are the new ones to be scanned (temp.scan.list = "these new files")
+        temp.scan.list <- raw.file.list[!scan.match]
         # Cat: Make a log of newly scanned files in the current scan
-        
+        write.csv(file = paste(d,"New_files_found.csv"),temp.scan.list,row.names = FALSE)
 }else{
         temp.scan.list <- raw.file.list      
 }        
@@ -85,7 +89,7 @@ temp.file.info$instrument <- unlist(sapply(initial,function(x){
 }))
 
 # Next assign the Hubble2 names to the respective files
-H2<-which(grepl("^H2L|^H2M|^H2Z|^H2_|^H2S|^H2E",temp.file.info$file.name))
+H2<-which(grepl("^H2_|^H2[A-Z]",temp.file.info$file.name))
 temp.file.info$instrument[H2] <- "Hubble2"
 
 # Finally, for the remaining UNKNOWN instrument names extract the implied instrument
@@ -97,10 +101,9 @@ temp.file.info$instrument[temp.file.info$instrument == "UNKNOWN"] <- unlist(sapp
                                                                                                grepl(y,x)
                                                                                        }))
                                                                                        temp.name <- ifelse(sum(name.scan.match) > 0, name.scanner[name.scan.match][1],"UNKNOWN")
-                                                                                       return(temp.name)
+                                                                                       return(temp.name) }))
 
 
-                                                                                                                                                                       }))
 ##############################################################################################
 # If !is.NULL(archive.file) 
 if(!is.null(archive.file)){
@@ -157,7 +160,7 @@ for(i in seq_along(all.instruments)){
 cat("Saving the active.archive.rds ")
 saveRDS(temp.file.status.info, file = "../active.archive.rds") # Save to working directory   
 write.csv(file = "../active.archive.csv",temp.file.status.info, row.names =FALSE) # Save .csv version to working directory
-write.csv(file = paste(d,"active.archive.csv",sep = "_"),temp.file.status.info,row.names = FALSE) #Save to latest log_file
+write.csv(file = paste(d,"active.archive.csv",sep = ""),temp.file.status.info,row.names = FALSE) #Save to latest log_file
 # Push active.archive.rds into dropbox API
 token<- readRDS("../droptoken.rds")
 drop_upload("../active.archive.rds",dtoken = token) #Upload the file to dropbox by using the available token 
