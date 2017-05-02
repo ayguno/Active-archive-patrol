@@ -1,12 +1,15 @@
 ###############################################################################
+# Author: Ozan Aygun
+# Date: 05/02/2017 
+#
 # Designed to monitor Proteomics Active Archive
-# 1. Generate the archive file
-# 2. Orchestrate the script with the archive file
-# 3. Push archive adn scan time log into dropbox API
-# 4. Plan for the logs and cats
-# 5. Perform a test schedule run
-# 6. Inspect 
+# Extracts the time, size and instrument information from the archived data
+# Makes a call for the status of the instrument (operational or downtime)
+# Creates log files for the scan
+# Pushes the scanned data into the dropbox API for remote access
+# Schedule to run this script 6 times a day
 ###############################################################################
+
 require(dplyr)
 require(tidyr)
 require(lubridate)
