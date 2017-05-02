@@ -17,11 +17,11 @@ require(stringr)
 print(Sys.time())
 setwd("C:/Users/ozan/Desktop/Ozan_R_utilities/Development/JurkatQCscraper/active_archive_patrol/Active-archive-patrol")
 old_dir <- getwd()
-d<-paste(old_dir,"/Logs/Log_files_",Sys.Date(),sep = "") 
+d<-paste("../Logs/Log_files_",Sys.Date(),sep = "") 
 if(!exists(d)){dir.create(d)}
 
 # Check if the active.archive.rds file exists
-if(file.exists("active.archive.rds")){
+if(file.exists("../active.archive.rds")){
         # If exists, archive.file = readRDS(active.archive.rds)
         archive.file <- readRDS(active.archive.rds)
 }else{
@@ -129,37 +129,44 @@ temp.file.status.info <- NULL
 for(i in seq_along(all.instruments)){
         temp.instrument.status <- temp.file.info[temp.file.info$instrument == all.instruments[i],]
         status = NULL
-        time.difference = NULL
+        time.difference_days = NULL
         for(j in seq_along(temp.instrument.status$ctime)){
                 ##################################################
                 # Collect the difference between runs in hours 
                 ##################################################
                 time.difference_days[j] <- julian(temp.instrument.status$ctime[j]) - julian(temp.instrument.status$ctime[j+1])        
                 # Call any time difference more than 5h (0.2083333 day) as "DOWNTIME"
-                status[j] <- ifelse(time.difference[j] > 0.2083333, "DOWNTIME","OPERATIONAL")
+                status[j] <- ifelse(time.difference_days[j] > 0.2083333, "DOWNTIME","OPERATIONAL")
         }
         #Call the first acquistion for each instrument as: "OPERATIONAL"
-        time.difference[length(time.difference)] <- 0
+        time.difference_days[length(time.difference_days)] <- 0
         status[length(status)] <- "OPERATIONAL"
-        temp.instrument.status$time.difference <- time.difference
+        temp.instrument.status$time.difference_days <- time.difference_days
         temp.instrument.status$status <- status
         
         # rbind the data from different instruments
         temp.file.status.info <- rbind(temp.file.status.info,temp.instrument.status)
+        cat("--All status assigned for instrument: ", all.instruments[i],"\n")
 }
                     
-
+#################################
+# Save the updated database
+#################################
 
 # Save temp.file.status.info as active.archive.rds into working directory
-
 cat("Saving the active.archive.rds ")
-saveRDS(temp.file.status.info, file = "active.archive.rds") # Save to working directory   
-write.csv(file = "active.archive.csv",temp.file.status.info, row.names =F) # Save .csv version to working directory
-
+saveRDS(temp.file.status.info, file = "../active.archive.rds") # Save to working directory   
+write.csv(file = "../active.archive.csv",temp.file.status.info, row.names =FALSE) # Save .csv version to working directory
+write.csv(file = paste(d,"active.archive.csv",sep = "_"),temp.file.status.info,row.names = FALSE) #Save to latest log_file
 # Push active.archive.rds into dropbox API
-
-
+token<- readRDS("../droptoken.rds")
+drop_upload("../active.archive.rds",dtoken = token) #Upload the file to dropbox by using the available token 
 
 
 # Create a scan time object
+latest_active_archive_patrol <- data.frame(date=as.character(Sys.time()))
+saveRDS(latest_active_archive_patrol,"../latest_active_archive_patrol.rds") # Save to retrieve latest scan information
 # Push scan time object into dropbox API
+token<- readRDS("../droptoken.rds")
+drop_upload("../latest_active_archive_patrol.rds", dtoken = token) # Also save to dropbox
+
