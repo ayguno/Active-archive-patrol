@@ -145,6 +145,9 @@ if(sum(!scan.match) >0){# If there is at least one new file to be scanned
                         # Collect the difference between runs in hours 
                         ##################################################
                         time.difference_days[j] <- julian(temp.instrument.status$ctime[j]) - julian(temp.instrument.status$ctime[j+1])        
+                        if(time.difference_days[j] == 0){
+                                time.difference_days[j] <- julian(temp.instrument.status$mtime[j]) - julian(temp.instrument.status$mtime[j+1])       
+                        }
                         # Call any time difference more than 5h (0.2083333 day) as "DOWNTIME"
                         status[j] <- ifelse(time.difference_days[j] > 0.2083333, "DOWNTIME","OPERATIONAL")
                 }
