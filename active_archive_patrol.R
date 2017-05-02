@@ -151,6 +151,11 @@ for(i in seq_along(all.instruments)){
 
 
 # Save temp.file.status.info as active.archive.rds into working directory
+
+cat("Saving the active.archive.rds ")
+saveRDS(temp.file.status.info, file = "active.archive.rds") # Save to working directory   
+write.csv(file = "active.archive.csv",temp.file.status.info, row.names =F) # Save .csv version to working directory
+
 # Push active.archive.rds into dropbox API
 
 
