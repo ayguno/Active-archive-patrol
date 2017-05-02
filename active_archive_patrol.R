@@ -13,22 +13,28 @@ require(lubridate)
 require(rdrop2)
 require(stringr)
 
-# Cat: date an time of the scan attempt for log
-print(Sys.time())
+
+
 setwd("C:/Users/ozan/Desktop/Ozan_R_utilities/Development/JurkatQCscraper/active_archive_patrol/Active-archive-patrol")
 old_dir <- getwd()
 d<-paste("../Logs/Log_files_",Sys.Date(),"/",sep = "") 
 if(!exists(d)){dir.create(d)}
 
+# Cat: date an time of the scan attempt for log
+cat("Scan started at: ",as.character(Sys.time()),"\n", file = paste(d,"scan_logs.txt"), append = TRUE )
+print(paste("Scan started at: ",Sys.time(),"\n"))
+
 # Check if the active.archive.rds file exists
 if(file.exists("../active.archive.rds")){
         # If exists, archive.file = readRDS(active.archive.rds)
         archive.file <- readRDS("../active.archive.rds")
-        cat("--Active archive database is found. Only new files will be scanned.\n")
+        print("--Active archive database is found. Only new files will be scanned.\n")
+        cat("--Active archive database is found. Only new files will be scanned.\n",file = paste(d,"scan_logs.txt"), append = TRUE)
 }else{
         # If does not exist, archive.file = NULL
         archive.file <- NULL
-        cat("--Active archive database is not found. All files will be scanned.\n")
+        print("--Active archive database is not found. All files will be scanned.\n")
+        cat("--Active archive database is not found. All files will be scanned.\n",file = paste(d,"scan_logs.txt"), append = TRUE)
 }
 
 
@@ -60,12 +66,12 @@ if(!is.null(archive.file)){
                 # Determine which are the new ones to be scanned (temp.scan.list = "these new files")
                 temp.scan.list <- raw.file.list[!scan.match]
                 # Cat: Make a log of newly scanned files in the current scan
-                write.csv(file = paste(d,"New_files_found.csv"),temp.scan.list,row.names = FALSE)  
+                write.csv(file = paste(d,"New_files_found.csv"),temp.scan.list,row.names = FALSE,append = TRUE)  
         }
         
 }else{  scan.match <- rep(FALSE,length(raw.file.list))
         temp.scan.list <- raw.file.list
-        write.csv(file = paste(d,"New_files_found.csv"),temp.scan.list,row.names = FALSE)
+        write.csv(file = paste(d,"New_files_found.csv"),temp.scan.list,row.names = FALSE, append = TRUE)
 }
 
 parse.rawfile.information <- function(raw.file.list, archive.file, temp.scan.list){
@@ -96,6 +102,14 @@ parse.rawfile.information <- function(raw.file.list, archive.file, temp.scan.lis
         H2<-which(grepl("^H2_|^H2[A-Z]",temp.file.info$file.name))
         temp.file.info$instrument[H2] <- "Hubble2"
         
+        # If the 4th letter in filename is not a number, label instrument name as: "UNKNOWN" and deal with it below
+        fourth.letter <-substr(temp.file.info$file.name,4,4)
+        fourth.letter.check <- unlist(sapply(fourth.letter,function(x){
+                grepl("[0-9]",x)      
+        }))
+        temp.file.info$instrument[!fourth.letter.check] <- "UNKNOWN"
+        
+        
         # Finally, for the remaining UNKNOWN instrument names extract the implied instrument
         # name from the path name. This time also include the Hubble
         name.scanner <- c(instrument_names,tolower(instrument_names),"Hubble","hubble")
@@ -124,7 +138,8 @@ parse.rawfile.information <- function(raw.file.list, archive.file, temp.scan.lis
 
 
 if(sum(!scan.match) >0){# If there is at least one new file to be scanned
-        cat("--Scanning for the newly generated raw files\n")
+        cat("--Scanning for the newly generated raw files\n",file = paste(d,"scan_logs.txt"), append = TRUE)
+        print("--Scanning for the newly generated raw files\n")
         # Call parse.rawfile.information to compile the latest data
         temp.file.info <- parse.rawfile.information(raw.file.list, archive.file,temp.scan.list)
 
@@ -165,7 +180,8 @@ if(sum(!scan.match) >0){# If there is at least one new file to be scanned
                 
                 # rbind the data from different instruments
                 temp.file.status.info <- rbind(temp.file.status.info,temp.instrument.status)
-                cat("--All status assigned for instrument: ", all.instruments[i],"\n")
+                print(paste("--All status assigned for instrument: ", all.instruments[i],"\n"))
+                cat("--All status assigned for instrument: ", all.instruments[i],"\n",file = paste(d,"scan_logs.txt"), append = TRUE)
         }
         
         
@@ -178,7 +194,8 @@ if(sum(!scan.match) >0){# If there is at least one new file to be scanned
         #################################
         
         # Save temp.file.status.info as active.archive.rds into working directory
-        cat("Saving the active.archive.rds ")
+        print("Saving the active.archive.rds\n ")
+        cat("Saving the active.archive.rds\n ",file = paste(d,"scan_logs.txt"), append = TRUE)
         saveRDS(temp.file.status.info, file = "../active.archive.rds") # Save to working directory   
         write.csv(file = "../active.archive.csv",temp.file.status.info, row.names =FALSE) # Save .csv version to working directory
         write.csv(file = paste(d,"active.archive.csv",sep = ""),temp.file.status.info,row.names = FALSE) #Save to latest log_file
@@ -188,7 +205,7 @@ if(sum(!scan.match) >0){# If there is at least one new file to be scanned
 
 }else{
         if(sum(!scan.match) == 0){
-                cat("--No new raw files found in this scan skipping without further action.\n")
+                cat("--No new raw files found in this scan skipping without further action.\n",file = paste(d,"scan_logs.txt"), append = TRUE)
                 temp.scan.message <- "No new raw files found in this scan skipping without further action."
                 write.csv(file = paste(d,"No_New_files_found.csv"),temp.scan.message,row.names = FALSE)
         }
@@ -201,3 +218,5 @@ saveRDS(latest_active_archive_patrol,"../latest_active_archive_patrol.rds") # Sa
 token<- readRDS("../droptoken.rds")
 drop_upload("../latest_active_archive_patrol.rds", dtoken = token) # Also save to dropbox
 
+cat("Scan finished at: ",as.character(Sys.time()),"\n", file = paste(d,"scan_logs.txt"), append = TRUE )
+print(paste("Scan finished at: ",as.character(Sys.time()),"\n"))
