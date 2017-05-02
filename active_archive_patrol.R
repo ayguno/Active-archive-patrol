@@ -63,8 +63,9 @@ if(!is.null(archive.file)){
                 write.csv(file = paste(d,"New_files_found.csv"),temp.scan.list,row.names = FALSE)  
         }
         
-}else{
-        temp.scan.list <- raw.file.list      
+}else{  scan.match <- rep(FALSE,length(raw.file.list))
+        temp.scan.list <- raw.file.list
+        write.csv(file = paste(d,"New_files_found.csv"),temp.scan.list,row.names = FALSE)
 }
 
 parse.rawfile.information <- function(raw.file.list, archive.file, temp.scan.list){
@@ -147,9 +148,15 @@ if(sum(!scan.match) >0){# If there is at least one new file to be scanned
                         # Call any time difference more than 5h (0.2083333 day) as "DOWNTIME"
                         status[j] <- ifelse(time.difference_days[j] > 0.2083333, "DOWNTIME","OPERATIONAL")
                 }
-                #Call the first acquistion for each instrument as: "OPERATIONAL"
+                #Call the first acqusition for each instrument as: "OPERATIONAL"
                 time.difference_days[length(time.difference_days)] <- 0
                 status[length(status)] <- "OPERATIONAL"
+                
+                #Dealing with the last acqusition to reflect latest status by the scan time
+                time.difference_days[1] <- julian(Sys.time())-julian(temp.instrument.status$ctime[j])
+                status[1] <- ifelse(time.difference_days[1] > 0.2083333, "DOWNTIME","OPERATIONAL")
+                
+                
                 temp.instrument.status$time.difference_days <- time.difference_days
                 temp.instrument.status$status <- status
                 
@@ -157,6 +164,11 @@ if(sum(!scan.match) >0){# If there is at least one new file to be scanned
                 temp.file.status.info <- rbind(temp.file.status.info,temp.instrument.status)
                 cat("--All status assigned for instrument: ", all.instruments[i],"\n")
         }
+        
+        
+        
+        
+        
                             
         #################################
         # Save the updated database
