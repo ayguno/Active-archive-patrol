@@ -1,5 +1,11 @@
 ###############################################################################
 # Designed to monitor Proteomics Active Archive
+# 1. Generate the archive file
+# 2. Orchestrate the script with the archive file
+# 3. Push archive adn scan time log into dropbox API
+# 4. Plan for the logs and cats
+# 5. Perform a test schedule run
+# 6. Inspect 
 ###############################################################################
 require(dplyr)
 require(tidyr)
