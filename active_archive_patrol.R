@@ -2,12 +2,12 @@
 # Author: Ozan Aygun
 # Date: 05/02/2017 
 #
-# Designed to monitor Proteomics Active Archive
-# Extracts the time, size and instrument information from the archived data
-# Makes a call for the status of the instrument (operational or downtime)
-# Creates log files for the scan
-# Pushes the scanned data into the dropbox API for remote access
-# Schedule to run this script 6 times a day
+# Designed to monitor Proteomics Active Archive.
+# Extracts the time, size and instrument information from the archived data.
+# Makes a call for the status of the instrument (operational or downtime).
+# Creates log files for the scan.
+# Pushes the scanned data into the dropbox API for remote access.
+# Schedule to run this script 6 times a day.
 ###############################################################################
 
 require(dplyr)
