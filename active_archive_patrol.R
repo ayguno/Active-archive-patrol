@@ -103,6 +103,14 @@ parse.rawfile.information <- function(raw.file.list, archive.file, temp.scan.lis
                 temp<- ifelse(sum(match.vector) == 1, instrument_names[match.vector],"UNKNOWN")
         }))
         
+        # If the 4th letter in filename is not a number, label instrument name as: "UNKNOWN" and deal with it below
+        fourth.letter <-substr(temp.file.info$file.name,4,4)
+        fourth.letter.check <- unlist(sapply(fourth.letter,function(x){
+                grepl("[0-9]",x)      
+        }))
+        temp.file.info$instrument[!fourth.letter.check] <- "UNKNOWN"
+        
+        
         # Next assign the Hubble2 names to the respective files
         # This approach seems to be biased!! Instead dealing with Hubble vs Hubble2 below.
                 # H2<-which(grepl("^H2_|^H2[A-Z]",temp.file.info$file.name))
@@ -120,12 +128,7 @@ parse.rawfile.information <- function(raw.file.list, archive.file, temp.scan.lis
 
 
 
-        # If the 4th letter in filename is not a number, label instrument name as: "UNKNOWN" and deal with it below
-        fourth.letter <-substr(temp.file.info$file.name,4,4)
-        fourth.letter.check <- unlist(sapply(fourth.letter,function(x){
-                grepl("[0-9]",x)      
-        }))
-        temp.file.info$instrument[!fourth.letter.check] <- "UNKNOWN"
+       
         
         
         # Finally, for the remaining UNKNOWN instrument names extract the implied instrument
