@@ -105,9 +105,21 @@ parse.rawfile.information <- function(raw.file.list, archive.file, temp.scan.lis
         
         # Next assign the Hubble2 names to the respective files
         # This approach seems to be biased!! Instead dealing with Hubble vs Hubble2 below.
-        # H2<-which(grepl("^H2_|^H2[A-Z]",temp.file.info$file.name))
-        # temp.file.info$instrument[H2] <- "Hubble2"
+                # H2<-which(grepl("^H2_|^H2[A-Z]",temp.file.info$file.name))
+                # temp.file.info$instrument[H2] <- "Hubble2"
         
+        Hubble2.name.scanner <- c("Hubble2","hubble2")
+        temp.file.info$instrument[temp.file.info$instrument == "UNKNOWN"] <- unlist(sapply(temp.file.info$path.name[temp.file.info$instrument == "UNKNOWN"],
+                                                                                   function(x){
+                                                                                           name.scan.match <- unlist(sapply(Hubble2.name.scanner,function(y){
+                                                                                                   grepl(y,x)
+                                                                                           }))
+                                                                                           temp.name <- ifelse(sum(name.scan.match) > 0, Hubble2.name.scanner[name.scan.match][1],"UNKNOWN")
+                                                                                           return(temp.name) }))
+
+
+
+
         # If the 4th letter in filename is not a number, label instrument name as: "UNKNOWN" and deal with it below
         fourth.letter <-substr(temp.file.info$file.name,4,4)
         fourth.letter.check <- unlist(sapply(fourth.letter,function(x){
@@ -118,7 +130,7 @@ parse.rawfile.information <- function(raw.file.list, archive.file, temp.scan.lis
         
         # Finally, for the remaining UNKNOWN instrument names extract the implied instrument
         # name from the path name. This time also include the Hubble and Hubble2
-        name.scanner <- c(instrument_names,tolower(instrument_names),"Hubble","hubble", "Hubble2","hubble2")
+        name.scanner <- c(instrument_names,tolower(instrument_names),"Hubble","hubble")
         temp.file.info$instrument[temp.file.info$instrument == "UNKNOWN"] <- unlist(sapply(temp.file.info$path.name[temp.file.info$instrument == "UNKNOWN"],
                                                                                            function(x){
                                                                                                name.scan.match <- unlist(sapply(name.scanner,function(y){
