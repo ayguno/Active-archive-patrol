@@ -7,9 +7,11 @@
 # Makes a call for the status of the instrument (operational or downtime).
 # Creates log files for the scan.
 # Pushes the scanned data into the dropbox API for remote access.
-# Schedule to run this script 6 times a day.
+# Schedule to run this script 24 times a day.
 # 
 # Update: Resolved a name bias between two instruments.
+# 05/04/2017: this version captures the data more accurately and will be 
+# replaced with the version that is scheduled for 1h runs.
 ###############################################################################
 
 require(dplyr)
