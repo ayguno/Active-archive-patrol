@@ -8,6 +8,8 @@
 # Creates log files for the scan.
 # Pushes the scanned data into the dropbox API for remote access.
 # Schedule to run this script 6 times a day.
+# 
+# Update: Resolved a name bias between two instruments.
 ###############################################################################
 
 require(dplyr)
